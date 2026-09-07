@@ -1,0 +1,52 @@
+class Deportista:
+
+    def __init__(self, nombre, edad, deporte, rendimiento):
+        self.nombre = nombre
+        self.edad = edad
+        self.deporte = deporte
+        self.rendimiento = rendimiento
+        self.rango = self.calcular_rango()
+
+    def calcular_rango(self):
+        if self.rendimiento < 50:
+            return "Principiante"
+        elif self.rendimiento < 70:
+            return "Básico"
+        elif self.rendimiento < 85:
+            return "Intermedio"
+        elif self.rendimiento < 95:
+            return "Avanzado"
+        else:
+            return "Élite"
+
+    def mostrar(self):
+        print("\n--- Deportista ---")
+        print("Nombre:", self.nombre)
+        print("Edad:", self.edad)
+        print("Deporte:", self.deporte)
+        print("Rendimiento:", self.rendimiento)
+        print("Rango:", self.rango)
+
+
+class Gimnasio:
+
+    def __init__(self):
+        self.deportistas = []
+
+    def registrar(self, deportista):
+        self.deportistas.append(deportista)
+
+    def mostrar_deportistas(self):
+        for deportista in self.deportistas:
+            deportista.mostrar()
+
+
+gimnasio = Gimnasio()
+
+deportista1 = Deportista("Jose", 19, "Voleibol", 85)
+deportista2 = Deportista("Samuel Zea ", 18, "Fútbol", 67)
+
+gimnasio.registrar(deportista1)
+gimnasio.registrar(deportista2)
+
+gimnasio.mostrar_deportistas()
