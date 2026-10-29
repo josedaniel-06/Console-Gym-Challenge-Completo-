@@ -1,5 +1,3 @@
-import unittest
-
 NIVELES = ["Principiante", "Básico", "Intermedio", "Avanzado", "Élite"]
 PUNTOS = [25, 60, 77, 90, 98]
 LIMITES_RANGO = [50, 70, 85, 95]
@@ -20,31 +18,35 @@ EJERCICIOS = {
 
 
 def pedir_texto(mensaje):
-    texto = input(mensaje)
+    texto = input(mensaje).strip()
 
     while texto == "":
         print("Este dato es obligatorio.")
-        texto = input(mensaje)
+        texto = input(mensaje).strip()
 
     return texto
 
 
 def pedir_numero(mensaje, minimo, maximo=100000):
-    numero = float(input(mensaje))
+    while True:
+        try:
+            numero = float(input(mensaje))
+        except ValueError:
+            print("Debes escribir un número.")
+            continue
 
-    while numero < minimo or numero > maximo:
-        print("Número incorrecto.")
-        numero = float(input(mensaje))
-
-    return numero
+        if numero < minimo or numero > maximo:
+            print("Número incorrecto.")
+        else:
+            return numero
 
 
 def pedir_cedula(mensaje):
-    cedula = input(mensaje)
+    cedula = input(mensaje).strip()
 
     while not cedula.isdigit() or len(cedula) < 6 or len(cedula) > 10:
         print("La cédula debe tener solo números (entre 6 y 10 dígitos).")
-        cedula = input(mensaje)
+        cedula = input(mensaje).strip()
 
     return cedula
 
@@ -285,7 +287,7 @@ def registrar_deportista(gimnasio):
 def registrar_ejercicio(gimnasio):
     print("\n--- Registrar ejercicio ---")
 
-    id = input("Cédula del deportista: ")
+    id = input("Cédula del deportista: ").strip()
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -305,14 +307,8 @@ def registrar_ejercicio(gimnasio):
         print(numero, ejercicio)
         numero = numero + 1
 
-    opcion = int(pedir_numero("Elige un ejercicio: ", 1, 11))
-
-    numero = 1
-
-    for ejercicio in nombres:
-        if numero == opcion:
-            elegido = ejercicio
-        numero = numero + 1
+    opcion = int(pedir_numero("Elige un ejercicio: ", 1, len(nombres)))
+    elegido = nombres[opcion - 1]
 
     tipo = EJERCICIOS[elegido][0]
 
@@ -332,7 +328,7 @@ def registrar_ejercicio(gimnasio):
 def registrar_rendimiento(gimnasio):
     print("\n--- Registrar rendimiento manual ---")
 
-    id = input("Cédula del deportista: ")
+    id = input("Cédula del deportista: ").strip()
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -350,7 +346,7 @@ def registrar_rendimiento(gimnasio):
 def consultar_deportista(gimnasio):
     print("\n--- Consultar deportista ---")
 
-    id = input("Cédula del deportista: ")
+    id = input("Cédula del deportista: ").strip()
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -362,7 +358,7 @@ def consultar_deportista(gimnasio):
 def actualizar_informacion(gimnasio):
     print("\n--- Actualizar información ---")
 
-    id = input("Cédula del deportista: ")
+    id = input("Cédula del deportista: ").strip()
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -399,7 +395,7 @@ def actualizar_informacion(gimnasio):
 def eliminar_deportista(gimnasio):
     print("\n--- Eliminar deportista ---")
 
-    id = input("Cédula del deportista: ")
+    id = input("Cédula del deportista: ").strip()
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -456,4 +452,4 @@ def main():
 
 
 if __name__ == "__main__":
-    unittest.main()
+    main()
