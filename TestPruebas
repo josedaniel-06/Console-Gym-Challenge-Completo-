@@ -1,6 +1,6 @@
 
 import unittest
-from gimnasio import Deportista
+from CodigoCompleto import *
 
 
 class PruebasGimnasio(unittest.TestCase):
