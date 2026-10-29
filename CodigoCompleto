@@ -1,3 +1,5 @@
+import unittest
+
 NIVELES = ["Principiante", "Básico", "Intermedio", "Avanzado", "Élite"]
 PUNTOS = [25, 60, 77, 90, 98]
 LIMITES_RANGO = [50, 70, 85, 95]
@@ -453,4 +455,5 @@ def main():
             print("Opción incorrecta.")
 
 
-main()
+if __name__ == "__main__":
+    unittest.main()
