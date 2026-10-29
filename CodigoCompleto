@@ -1,4 +1,3 @@
-
 NIVELES = ["Principiante", "Básico", "Intermedio", "Avanzado", "Élite"]
 PUNTOS = [25, 60, 77, 90, 98]
 LIMITES_RANGO = [50, 70, 85, 95]
@@ -36,6 +35,16 @@ def pedir_numero(mensaje, minimo, maximo=100000):
         numero = float(input(mensaje))
 
     return numero
+
+
+def pedir_cedula(mensaje):
+    cedula = input(mensaje)
+
+    while not cedula.isdigit() or len(cedula) < 6 or len(cedula) > 10:
+        print("La cédula debe tener solo números (entre 6 y 10 dígitos).")
+        cedula = input(mensaje)
+
+    return cedula
 
 
 def pedir_genero():
@@ -161,7 +170,7 @@ class Deportista:
 
     def mostrar(self):
         print("\n--- Deportista ---")
-        print("ID:", self.id)
+        print("Cédula (ID):", self.id)
         print("Nombre:", self.nombre)
         print("Edad:", self.edad)
         print("Género:", self.genero)
@@ -187,14 +196,9 @@ class Gimnasio:
 
     def __init__(self):
         self.deportistas = []
-        self.contador = 0
 
     def registrar(self, deportista):
         self.deportistas.append(deportista)
-
-    def crear_id(self):
-        self.contador = self.contador + 1
-        return str(self.contador)
 
     def buscar(self, id):
         for deportista in self.deportistas:
@@ -254,6 +258,12 @@ class Gimnasio:
 def registrar_deportista(gimnasio):
     print("\n--- Registrar deportista ---")
 
+    id = pedir_cedula("Cédula (será el ID): ")
+
+    if gimnasio.buscar(id) is not None:
+        print("Ya existe un deportista con esa cédula.")
+        return
+
     nombre = pedir_texto("Nombre: ")
     edad = int(pedir_numero("Edad: ", 1, 100))
     genero = pedir_genero()
@@ -261,13 +271,11 @@ def registrar_deportista(gimnasio):
     estatura = pedir_numero("Estatura (m): ", 0.5, 2.5)
     deporte = pedir_texto("Deporte: ")
 
-    id = gimnasio.crear_id()
-
     deportista = Deportista(id, nombre, edad, genero, peso, estatura, deporte)
     gimnasio.registrar(deportista)
 
     print("Deportista registrado correctamente.")
-    print("ID asignado:", id)
+    print("ID (cédula):", id)
     print("IMC:", round(deportista.imc, 2))
     print("Clasificación:", deportista.clasificar_imc())
 
@@ -275,7 +283,7 @@ def registrar_deportista(gimnasio):
 def registrar_ejercicio(gimnasio):
     print("\n--- Registrar ejercicio ---")
 
-    id = input("ID del deportista: ")
+    id = input("Cédula del deportista: ")
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -322,7 +330,7 @@ def registrar_ejercicio(gimnasio):
 def registrar_rendimiento(gimnasio):
     print("\n--- Registrar rendimiento manual ---")
 
-    id = input("ID del deportista: ")
+    id = input("Cédula del deportista: ")
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -340,7 +348,7 @@ def registrar_rendimiento(gimnasio):
 def consultar_deportista(gimnasio):
     print("\n--- Consultar deportista ---")
 
-    id = input("ID del deportista: ")
+    id = input("Cédula del deportista: ")
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -352,7 +360,7 @@ def consultar_deportista(gimnasio):
 def actualizar_informacion(gimnasio):
     print("\n--- Actualizar información ---")
 
-    id = input("ID del deportista: ")
+    id = input("Cédula del deportista: ")
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
@@ -389,7 +397,7 @@ def actualizar_informacion(gimnasio):
 def eliminar_deportista(gimnasio):
     print("\n--- Eliminar deportista ---")
 
-    id = input("ID del deportista: ")
+    id = input("Cédula del deportista: ")
     deportista = gimnasio.buscar(id)
 
     if deportista is None:
