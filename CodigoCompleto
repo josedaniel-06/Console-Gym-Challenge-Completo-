@@ -1,11 +1,83 @@
+
+NIVELES = ["Principiante", "Básico", "Intermedio", "Avanzado", "Élite"]
+PUNTOS = [25, 60, 77, 90, 98]
+LIMITES_RANGO = [50, 70, 85, 95]
+
+EJERCICIOS = {
+    "Sentadilla": ("carga", [0.75, 1.0, 1.5, 2.0], [0.5, 0.75, 1.25, 1.75]),
+    "Cargas en pecho": ("carga", [0.5, 0.75, 1.0, 1.5], [0.25, 0.5, 0.75, 1.0]),
+    "Cargas en espalda": ("carga", [0.5, 0.75, 1.0, 1.25], [0.3, 0.5, 0.75, 1.0]),
+    "Extension de cuadriceps": ("carga", [0.4, 0.7, 1.0, 1.4], [0.25, 0.5, 0.75, 1.1]),
+    "Peso muerto": ("carga", [1.0, 1.5, 2.0, 2.5], [0.75, 1.25, 1.75, 2.25]),
+    "Press militar": ("carga", [0.35, 0.55, 0.8, 1.1], [0.2, 0.35, 0.55, 0.8]),
+    "Curl de biceps": ("carga", [0.2, 0.4, 0.6, 0.8], [0.1, 0.25, 0.4, 0.6]),
+    "Flexiones": ("corporal", [10, 20, 35, 50], [5, 12, 25, 40]),
+    "Abdominales": ("corporal", [20, 30, 40, 50], [15, 25, 35, 45]),
+    "Dominadas": ("corporal", [1, 5, 10, 15], [1, 3, 6, 10]),
+    "Plancha (segundos)": ("corporal", [30, 60, 90, 180], [30, 60, 90, 180])
+}
+
+
+def pedir_texto(mensaje):
+    texto = input(mensaje)
+
+    while texto == "":
+        print("Este dato es obligatorio.")
+        texto = input(mensaje)
+
+    return texto
+
+
+def pedir_numero(mensaje, minimo, maximo=100000):
+    numero = float(input(mensaje))
+
+    while numero < minimo or numero > maximo:
+        print("Número incorrecto.")
+        numero = float(input(mensaje))
+
+    return numero
+
+
+def pedir_genero():
+    genero = input("Género (H = Hombre, M = Mujer): ")
+
+    while genero != "H" and genero != "h" and genero != "M" and genero != "m":
+        print("Escribe H o M.")
+        genero = input("Género (H = Hombre, M = Mujer): ")
+
+    if genero == "H" or genero == "h":
+        return "Hombre"
+    else:
+        return "Mujer"
+
+
 class Deportista:
 
-    def __init__(self, nombre, edad, deporte, rendimiento):
+    def __init__(self, id, nombre, edad, genero, peso, estatura, deporte):
+        self.id = id
         self.nombre = nombre
         self.edad = edad
+        self.genero = genero
+        self.peso = peso
+        self.estatura = estatura
         self.deporte = deporte
-        self.rendimiento = rendimiento
-        self.rango = self.calcular_rango()
+        self.ejercicios = {}
+        self.rendimiento = 0
+        self.rango = "Principiante"
+        self.imc = self.calcular_imc()
+
+    def calcular_imc(self):
+        return self.peso / (self.estatura * self.estatura)
+
+    def clasificar_imc(self):
+        if self.imc < 18.5:
+            return "Bajo peso"
+        elif self.imc < 25:
+            return "Peso normal"
+        elif self.imc < 30:
+            return "Sobrepeso"
+        else:
+            return "Obesidad"
 
     def calcular_rango(self):
         if self.rendimiento < 50:
@@ -19,34 +91,358 @@ class Deportista:
         else:
             return "Élite"
 
+    def calcular_nivel_ejercicio(self, ejercicio, valor):
+        tipo = EJERCICIOS[ejercicio][0]
+
+        if self.genero == "Hombre":
+            limites = EJERCICIOS[ejercicio][1]
+        else:
+            limites = EJERCICIOS[ejercicio][2]
+
+        if tipo == "carga":
+            valor = valor / self.peso
+
+        posicion = 0
+
+        for limite in limites:
+            if valor >= limite:
+                posicion = posicion + 1
+
+        return NIVELES[posicion]
+
+    def registrar_ejercicio(self, ejercicio, valor):
+        nivel = self.calcular_nivel_ejercicio(ejercicio, valor)
+        self.ejercicios[ejercicio] = nivel
+        self.calcular_rendimiento()
+        return nivel
+
+    def calcular_rendimiento(self):
+        total = 0
+        cantidad = 0
+
+        for ejercicio in self.ejercicios:
+            nivel = self.ejercicios[ejercicio]
+            posicion = 0
+
+            for nombre in NIVELES:
+                if nombre == nivel:
+                    total = total + PUNTOS[posicion]
+                posicion = posicion + 1
+
+            cantidad = cantidad + 1
+
+        if cantidad > 0:
+            self.rendimiento = round(total / cantidad)
+
+        self.rango = self.calcular_rango()
+
+    def actualizar_rendimiento(self, nuevo):
+        self.rendimiento = nuevo
+        self.rango = self.calcular_rango()
+
+    def progreso_siguiente_rango(self):
+        if self.rango == "Élite":
+            print("¡Has alcanzado el nivel más alto!")
+        else:
+            posicion = 0
+
+            for nivel in NIVELES:
+                if nivel == self.rango:
+                    break
+                posicion = posicion + 1
+
+            siguiente = NIVELES[posicion + 1]
+            necesario = LIMITES_RANGO[posicion]
+            faltan = necesario - self.rendimiento
+
+            print("Siguiente rango:", siguiente)
+            print("Rendimiento necesario:", necesario)
+            print("Puntos que faltan:", faltan)
+
     def mostrar(self):
         print("\n--- Deportista ---")
+        print("ID:", self.id)
         print("Nombre:", self.nombre)
         print("Edad:", self.edad)
+        print("Género:", self.genero)
+        print("Peso:", self.peso, "kg")
+        print("Estatura:", self.estatura, "m")
+        print("IMC:", round(self.imc, 2), self.clasificar_imc())
         print("Deporte:", self.deporte)
+
+        if self.ejercicios == {}:
+            print("No hay ejercicios registrados.")
+        else:
+            print("Ejercicios:")
+
+            for ejercicio in self.ejercicios:
+                print(ejercicio, ":", self.ejercicios[ejercicio])
+
         print("Rendimiento:", self.rendimiento)
         print("Rango:", self.rango)
+        self.progreso_siguiente_rango()
 
 
 class Gimnasio:
 
     def __init__(self):
         self.deportistas = []
+        self.contador = 0
 
     def registrar(self, deportista):
         self.deportistas.append(deportista)
 
+    def crear_id(self):
+        self.contador = self.contador + 1
+        return str(self.contador)
+
+    def buscar(self, id):
+        for deportista in self.deportistas:
+            if deportista.id == id:
+                return deportista
+        return None
+
+    def eliminar(self, deportista):
+        self.deportistas.remove(deportista)
+
     def mostrar_deportistas(self):
+        if self.deportistas == []:
+            print("No hay deportistas registrados.")
+
         for deportista in self.deportistas:
             deportista.mostrar()
 
+    def mostrar_clasificacion(self):
+        if self.deportistas == []:
+            print("No hay deportistas registrados.")
+            return
 
-gimnasio = Gimnasio()
+        ordenados = []
+        cantidad = 0
 
-deportista1 = Deportista("Jose", 19, "Voleibol", 85)
-deportista2 = Deportista("Samuel Zea ", 18, "Fútbol", 67)
+        for deportista in self.deportistas:
+            ordenados.append(deportista)
+            cantidad = cantidad + 1
 
-gimnasio.registrar(deportista1)
-gimnasio.registrar(deportista2)
+        i = 0
 
-gimnasio.mostrar_deportistas()
+        while i < cantidad:
+            j = 0
+
+            while j < cantidad - 1:
+                if ordenados[j].rendimiento < ordenados[j + 1].rendimiento:
+                    temporal = ordenados[j]
+                    ordenados[j] = ordenados[j + 1]
+                    ordenados[j + 1] = temporal
+
+                j = j + 1
+
+            i = i + 1
+
+        print("\n===== CLASIFICACIÓN =====")
+
+        puesto = 1
+
+        for deportista in ordenados:
+            print(puesto, deportista.nombre,
+                  "- Rendimiento:", deportista.rendimiento,
+                  "- Rango:", deportista.rango)
+
+            puesto = puesto + 1
+
+
+def registrar_deportista(gimnasio):
+    print("\n--- Registrar deportista ---")
+
+    nombre = pedir_texto("Nombre: ")
+    edad = int(pedir_numero("Edad: ", 1, 100))
+    genero = pedir_genero()
+    peso = pedir_numero("Peso (kg): ", 1, 400)
+    estatura = pedir_numero("Estatura (m): ", 0.5, 2.5)
+    deporte = pedir_texto("Deporte: ")
+
+    id = gimnasio.crear_id()
+
+    deportista = Deportista(id, nombre, edad, genero, peso, estatura, deporte)
+    gimnasio.registrar(deportista)
+
+    print("Deportista registrado correctamente.")
+    print("ID asignado:", id)
+    print("IMC:", round(deportista.imc, 2))
+    print("Clasificación:", deportista.clasificar_imc())
+
+
+def registrar_ejercicio(gimnasio):
+    print("\n--- Registrar ejercicio ---")
+
+    id = input("ID del deportista: ")
+    deportista = gimnasio.buscar(id)
+
+    if deportista is None:
+        print("No se encontró el deportista.")
+        return
+
+    print("\nEjercicios disponibles:")
+
+    nombres = []
+
+    for ejercicio in EJERCICIOS:
+        nombres.append(ejercicio)
+
+    numero = 1
+
+    for ejercicio in nombres:
+        print(numero, ejercicio)
+        numero = numero + 1
+
+    opcion = int(pedir_numero("Elige un ejercicio: ", 1, 11))
+
+    numero = 1
+
+    for ejercicio in nombres:
+        if numero == opcion:
+            elegido = ejercicio
+        numero = numero + 1
+
+    tipo = EJERCICIOS[elegido][0]
+
+    if tipo == "carga":
+        valor = pedir_numero("Peso máximo levantado en kg: ", 0)
+    else:
+        valor = pedir_numero("Repeticiones o segundos: ", 0)
+
+    nivel = deportista.registrar_ejercicio(elegido, valor)
+
+    print("Nivel del ejercicio:", nivel)
+    print("Rendimiento general:", deportista.rendimiento)
+    print("Rango actual:", deportista.rango)
+    deportista.progreso_siguiente_rango()
+
+
+def registrar_rendimiento(gimnasio):
+    print("\n--- Registrar rendimiento manual ---")
+
+    id = input("ID del deportista: ")
+    deportista = gimnasio.buscar(id)
+
+    if deportista is None:
+        print("No se encontró el deportista.")
+        return
+
+    nuevo = int(pedir_numero("Nuevo rendimiento (0 a 100): ", 0, 100))
+    deportista.actualizar_rendimiento(nuevo)
+
+    print("Rendimiento actualizado.")
+    print("Rango actual:", deportista.rango)
+    deportista.progreso_siguiente_rango()
+
+
+def consultar_deportista(gimnasio):
+    print("\n--- Consultar deportista ---")
+
+    id = input("ID del deportista: ")
+    deportista = gimnasio.buscar(id)
+
+    if deportista is None:
+        print("No se encontró el deportista.")
+    else:
+        deportista.mostrar()
+
+
+def actualizar_informacion(gimnasio):
+    print("\n--- Actualizar información ---")
+
+    id = input("ID del deportista: ")
+    deportista = gimnasio.buscar(id)
+
+    if deportista is None:
+        print("No se encontró el deportista.")
+        return
+
+    print("1. Nombre")
+    print("2. Edad")
+    print("3. Peso")
+    print("4. Estatura")
+    print("5. Deporte")
+
+    opcion = input("¿Qué deseas actualizar?: ")
+
+    if opcion == "1":
+        deportista.nombre = pedir_texto("Nuevo nombre: ")
+    elif opcion == "2":
+        deportista.edad = int(pedir_numero("Nueva edad: ", 1, 100))
+    elif opcion == "3":
+        deportista.peso = pedir_numero("Nuevo peso: ", 1, 400)
+        deportista.imc = deportista.calcular_imc()
+    elif opcion == "4":
+        deportista.estatura = pedir_numero("Nueva estatura: ", 0.5, 2.5)
+        deportista.imc = deportista.calcular_imc()
+    elif opcion == "5":
+        deportista.deporte = pedir_texto("Nuevo deporte: ")
+    else:
+        print("Opción incorrecta.")
+        return
+
+    print("Información actualizada correctamente.")
+
+
+def eliminar_deportista(gimnasio):
+    print("\n--- Eliminar deportista ---")
+
+    id = input("ID del deportista: ")
+    deportista = gimnasio.buscar(id)
+
+    if deportista is None:
+        print("No se encontró el deportista.")
+        return
+
+    confirmar = input("¿Eliminar a " + deportista.nombre + "? (s/n): ")
+
+    if confirmar == "s" or confirmar == "S":
+        gimnasio.eliminar(deportista)
+        print("Deportista eliminado.")
+    else:
+        print("Operación cancelada.")
+
+
+def mostrar_menu():
+    print("\n===== CONSOLE GYM CHALLENGE =====")
+    print("1. Registrar deportista")
+    print("2. Registrar ejercicio")
+    print("3. Registrar rendimiento manual")
+    print("4. Consultar deportista")
+    print("5. Mostrar clasificación")
+    print("6. Actualizar información")
+    print("7. Eliminar deportista")
+    print("8. Salir")
+
+
+def main():
+    gimnasio = Gimnasio()
+
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            registrar_deportista(gimnasio)
+        elif opcion == "2":
+            registrar_ejercicio(gimnasio)
+        elif opcion == "3":
+            registrar_rendimiento(gimnasio)
+        elif opcion == "4":
+            consultar_deportista(gimnasio)
+        elif opcion == "5":
+            gimnasio.mostrar_clasificacion()
+        elif opcion == "6":
+            actualizar_informacion(gimnasio)
+        elif opcion == "7":
+            eliminar_deportista(gimnasio)
+        elif opcion == "8":
+            print("¡Hasta pronto!")
+            break
+        else:
+            print("Opción incorrecta.")
+
+
+main()
