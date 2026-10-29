@@ -1,0 +1,40 @@
+
+import unittest
+from gimnasio import Deportista
+
+
+class PruebasGimnasio(unittest.TestCase):
+
+    def test_calcular_imc(self):
+        deportista = Deportista("1", "Juan", 20, "Hombre", 70, 1.75, "Futbol")
+        self.assertEqual(round(deportista.calcular_imc(), 2), 22.86)
+
+    def test_clasificar_imc(self):
+        deportista = Deportista("1", "Juan", 20, "Hombre", 70, 1.75, "Futbol")
+        self.assertEqual(deportista.clasificar_imc(), "Peso normal")
+
+    def test_calcular_rango(self):
+        deportista = Deportista("1", "Juan", 20, "Hombre", 70, 1.75, "Futbol")
+        deportista.rendimiento = 80
+        self.assertEqual(deportista.calcular_rango(), "Intermedio")
+
+    def test_registrar_ejercicio(self):
+        deportista = Deportista("1", "Juan", 20, "Hombre", 70, 1.75, "Futbol")
+        nivel = deportista.registrar_ejercicio("Sentadilla", 70)
+        self.assertEqual(nivel, "Intermedio")
+
+    def test_rendimiento(self):
+        deportista = Deportista("1", "Juan", 20, "Hombre", 70, 1.75, "Futbol")
+        deportista.registrar_ejercicio("Sentadilla", 70)
+        self.assertEqual(deportista.rendimiento, 77)
+
+    def test_error_imc(self):
+        deportista = Deportista("1", "Juan", 20, "Hombre", 70, 1.75, "Futbol")
+        deportista.estatura = 0
+
+        with self.assertRaises(ZeroDivisionError):
+            deportista.calcular_imc()
+
+
+if __name__ == "__main__":
+    unittest.main()
